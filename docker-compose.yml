@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  cd-shiny-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cd-shiny-app
+    restart: unless-stopped
+    environment:
+      SHINY_PORT: "3838"
+      SHINY_HOST: "0.0.0.0"
+    expose:
+      - "3838"
+    # Easypanel usually handles public routing itself, so a host port mapping
+    # is not needed and avoids conflicts with other apps.
+    #
+    # If you want Docker to publish a random host port outside Easypanel,
+    # replace the expose block above with:
+    #
+    # ports:
+    #   - target: 3838
+    #     published: "0"
+    #     protocol: tcp
+    #     mode: host
+    #
+    # Then Docker will choose an ephemeral host port.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3838/ >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
